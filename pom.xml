@@ -10,6 +10,7 @@
     <version>1.0-SNAPSHOT</version>
     <modules>
         <module>gateway-core</module>
+        <module>gateway-common</module>
     </modules>
 
     <properties>
@@ -36,6 +37,11 @@
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>com.wym</groupId>
+            <artifactId>gateway-common</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
         <!-- 网络应用框架 -->
         <dependency>
             <groupId>io.netty</groupId>
