@@ -1,6 +1,7 @@
 package com.wym.core.context;
 
 
+import com.wym.common.rule.Rule;
 import com.wym.core.request.IGatewayRequest;
 import com.wym.core.response.GatewayResponse;
 import io.netty.channel.ChannelHandlerContext;
@@ -8,7 +9,7 @@ import io.netty.channel.ChannelHandlerContext;
 public class GatewayContext extends BaseContext {
     public IGatewayRequest request;
     public GatewayResponse response;
-//    public Rule rule;
+    public Rule rule;
 
 
 
