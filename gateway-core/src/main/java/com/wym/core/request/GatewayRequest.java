@@ -7,6 +7,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.http.*;
 import io.netty.handler.codec.http.cookie.Cookie;
 import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
+import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.asynchttpclient.Request;
 import org.asynchttpclient.RequestBuilder;
@@ -17,6 +18,7 @@ import java.util.*;
 
 public class GatewayRequest implements IGatewayRequest {
     // 服务唯一id
+    @Getter
     private final String uniqueId;
 
     // 进入网关的开始时间
@@ -53,6 +55,7 @@ public class GatewayRequest implements IGatewayRequest {
     private final QueryStringDecoder queryStringDecoder;
 
     // 校验请求是否是一个完整的http请求
+    @Getter
     private final FullHttpRequest fullHttpRequest;
 
     // 请求体

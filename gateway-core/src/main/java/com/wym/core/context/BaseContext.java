@@ -3,7 +3,6 @@ package com.wym.core.context;
 import io.netty.channel.ChannelHandlerContext;
 import org.springframework.util.CollectionUtils;
 
-import javax.swing.*;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
