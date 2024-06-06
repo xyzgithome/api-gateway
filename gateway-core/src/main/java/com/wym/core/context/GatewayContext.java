@@ -1,7 +1,6 @@
 package com.wym.core.context;
 
-
-import com.wym.common.rule.Rule;
+import com.wym.common.config.Rule;
 import com.wym.core.request.GatewayRequest;
 import com.wym.core.response.GatewayResponse;
 import io.netty.channel.ChannelHandlerContext;

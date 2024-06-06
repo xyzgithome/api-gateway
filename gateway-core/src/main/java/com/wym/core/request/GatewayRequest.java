@@ -1,203 +1,213 @@
 package com.wym.core.request;
 
-import com.google.common.collect.Lists;
-import com.jayway.jsonpath.JsonPath;
 import com.wym.common.constants.BasicConst;
-import io.netty.buffer.ByteBuf;
+import com.wym.common.utils.TimeUtil;
 import io.netty.handler.codec.http.*;
-import io.netty.handler.codec.http.cookie.Cookie;
 import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
 import lombok.Getter;
-import org.apache.commons.lang3.StringUtils;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.asynchttpclient.Request;
 import org.asynchttpclient.RequestBuilder;
-import org.springframework.util.CollectionUtils;
 
 import java.nio.charset.Charset;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
+/**
+ * 网关请求类
+ */
+@Slf4j
 public class GatewayRequest implements IGatewayRequest {
-    // 服务唯一id
+
+    /**
+     * 服务ID
+     */
     @Getter
     private final String uniqueId;
 
-    // 进入网关的开始时间
+    /**
+     * 请求进入网关时间
+     */
+    @Getter
     private final long beginTime;
 
-    // 进入网关的结束时间
-    private final long endTime;
-
-    // 字符集
+    /**
+     * 字符集不会变的
+     */
+    @Getter
     private final Charset charset;
 
-    // 客户端ip
+    /**
+     * 客户端的IP，主要用于做流控、黑白名单
+     */
+    @Getter
     private final String clientIp;
 
-    // 服务端主机
+    /**
+     * 请求的地址：IP：port
+     */
+    @Getter
     private final String host;
 
-    // 服务端请求路径 /xxx/xx/x
+    /**
+     * 请求的路径   /XXX/XXX/XX
+     */
+    @Getter
     private final String path;
 
-    // 统一资源标识符   /xxx/xx/x?attr1=1&attr2=2
+    /**
+     * URI：统一资源标识符，/XXX/XXX/XXX?attr1=value&attr2=value2
+     * URL：统一资源定位符，它只是URI的子集一个实现
+     */
+    @Getter
     private final String uri;
 
-    // 请求方式 post/get/put/delete
+    /**
+     * 请求方法 post/put/GET
+     */
+    @Getter
     private final HttpMethod method;
 
-    // 请求格式 json/xml...
+    /**
+     * 请求的格式
+     */
+    @Getter
     private final String contentType;
 
-    // 请求头
+    /**
+     * 请求头信息
+     */
+    @Getter
     private final HttpHeaders headers;
 
-    // 参数解析器
-    private final QueryStringDecoder queryStringDecoder;
-
-    // 校验请求是否是一个完整的http请求
+    /**
+     * FullHttpRequest
+     */
     @Getter
     private final FullHttpRequest fullHttpRequest;
 
-    // 请求体
-    private String requestBody;
+    /**
+     * 请求参数
+     */
+    Map<String, List<String>> parameters;
 
-    // cookie
-    private Map<String, Cookie> cookieMap;
+    /**
+     * 请求体
+     */
+    @Getter
+    private String body;
 
-    // post请求参数
-    private Map<String, List<String>> postParameters;
+    /**
+     * 请求Cookie
+     */
+    @Getter
+    private Map<String, io.netty.handler.codec.http.cookie.Cookie> cookieMap;
 
-    // 可修改的scheme 默认是http协议
+    @Setter
+    @Getter
+    private long userId;
+
+
+    /******可修改的请求变量***************************************/
+    /**
+     * 可修改的Scheme，默认是http://
+     */
     private String modifyScheme;
 
-    // 可修改的主机名
     private String modifyHost;
 
-    // 可修改的请求路径
     private String modifyPath;
 
-    // 构建下游请求时的http构建器
+    /**
+     * 构建下游请求是的http请求构建器
+     */
     private final RequestBuilder requestBuilder;
 
-
-    public GatewayRequest(String uniqueId, long endTime, Charset charset, String clientIp,
-                          String host, String uri, HttpMethod method, String contentType,
-                          HttpHeaders headers, QueryStringDecoder queryStringDecoder,
-                          FullHttpRequest fullHttpRequest) {
-        // 不变属性赋值
+    /**
+     * 构造器
+     *
+     * @param uniqueId
+     * @param charset
+     * @param clientIp
+     * @param host
+     * @param uri
+     * @param method
+     * @param contentType
+     * @param headers
+     * @param fullHttpRequest
+     */
+    public GatewayRequest(String uniqueId,
+                          Charset charset,
+                          String clientIp,
+                          String host,
+                          String uri,
+                          String path,
+                          HttpMethod method,
+                          Map<String, List<String>> parameters,
+                          String body,
+                          String contentType,
+                          HttpHeaders headers,
+                          FullHttpRequest fullHttpRequest,
+                          RequestBuilder requestBuilder) {
         this.uniqueId = uniqueId;
-        this.beginTime = System.currentTimeMillis();
-        this.endTime = endTime;
         this.charset = charset;
         this.clientIp = clientIp;
         this.host = host;
-        this.path = queryStringDecoder.path();
         this.uri = uri;
+        this.path = path;
         this.method = method;
+        this.parameters = parameters;
+        this.body = body;
         this.contentType = contentType;
         this.headers = headers;
-        this.queryStringDecoder = new QueryStringDecoder(uri, charset);
+        this.requestBuilder = requestBuilder;
         this.fullHttpRequest = fullHttpRequest;
-        this.requestBuilder = new RequestBuilder()
-                .setMethod(this.method.name())
-                .setHeaders(this.headers)
-                .setQueryParams(queryStringDecoder.parameters());
-        ByteBuf content = fullHttpRequest.content();
-        if (Objects.nonNull(content)) {
-            this.requestBuilder.setBody(content.nioBuffer());
-        }
 
-        // 可变的属性赋值
-//        this.requestBody = requestBody;
-//        this.cookieMap = cookieMap;
-//        this.postParameters = postParameters;
-        this.modifyScheme = BasicConst.HTTP_PREFIX_SEPARATOR;
-        this.modifyHost = host;
         this.modifyPath = path;
+        this.modifyScheme = BasicConst.HTTP_PREFIX_SEPARATOR;
+        this.beginTime = TimeUtil.currentTimeMillis();
 
     }
 
-    // 获取并设置 请求体 requestBody
-    public String getRequestBody() {
-        if (StringUtils.isBlank(requestBody)) {
-            requestBody = fullHttpRequest.content().toString(charset);
-        }
-
-        return requestBody;
-    }
-
-    // 设置cookieMap, 并获取cookie
-    public Cookie getCookie(String name) {
-        if (CollectionUtils.isEmpty(cookieMap)) {
+    /**
+     * 获取Cookie
+     *
+     * @param name
+     * @return
+     */
+    public io.netty.handler.codec.http.cookie.Cookie getCookie(String name) {
+        if (cookieMap == null) {
             cookieMap = new HashMap<>();
-            String cookieStr = headers.get(HttpHeaderNames.COOKIE);
-            Set<Cookie> cookies = ServerCookieDecoder.STRICT.decode(cookieStr);
-
-            for (Cookie cookie : cookies) {
+            String cookieStr = getHeaders().get(HttpHeaderNames.COOKIE);
+            Set<io.netty.handler.codec.http.cookie.Cookie> cookies = ServerCookieDecoder.STRICT.decode(cookieStr);
+            for (io.netty.handler.codec.http.cookie.Cookie cookie : cookies) {
                 cookieMap.put(name, cookie);
             }
         }
-
         return cookieMap.get(name);
     }
 
-    // 获取指定名称的参数值
-    public List<String> getQueryParametersMultiple(String name) {
-        return queryStringDecoder.parameters().get(name);
-    }
-
-    // 获取post请求指定名称的参数值
-    public List<String> getPostParametersMultiple(String name) {
-        if (!isFormPost() && !isJsonPost()) {
-            return Collections.emptyList();
-        }
-
-        String requestBody = getRequestBody();
-
-        // 请求体是表单格式
-        if (isFormPost()) {
-            if (CollectionUtils.isEmpty(postParameters)) {
-                // hasPath true : /xxx/xx/x?attr1=1&attr2=2
-                // hasPath false : attr1=1&attr2=2
-                QueryStringDecoder queryStringDecoder = new QueryStringDecoder(requestBody, false);
-                postParameters = queryStringDecoder.parameters();
-            }
-
-            return postParameters.get(name);
-        }
-
-        // 请求体类型是json
-        return Lists.newArrayList(JsonPath.read(requestBody, name).toString());
-    }
-
-    public boolean isFormPost() {
-        return HttpMethod.POST.equals(method) &&
-                (contentType.startsWith(HttpHeaderValues.FORM_DATA.toString()) ||
-                        contentType.startsWith(HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED.toString()));
-    }
-
-    public boolean isJsonPost() {
-        return HttpMethod.POST.equals(method) && contentType.startsWith(HttpHeaderValues.APPLICATION_JSON.toString());
-    }
-
     @Override
-    public void setModifyHost(String host) {
-        this.modifyHost = host;
+    public void setModifyHost(String modifyHost) {
+        this.modifyHost = modifyHost;
     }
 
     @Override
     public String getModifyHost() {
-        return this.modifyHost;
+        return modifyHost;
     }
 
     @Override
-    public void setModifyPath(String path) {
-        this.modifyPath = path;
+    public void setModifyPath(String modifyPath) {
+        this.modifyPath = modifyPath;
     }
 
     @Override
     public String getModifyPath() {
-        return this.modifyPath;
+        return modifyPath;
     }
 
     @Override
@@ -217,11 +227,9 @@ public class GatewayRequest implements IGatewayRequest {
 
     @Override
     public void addFormParam(String name, String value) {
-        if (!isFormPost()) {
-            return;
+        if (isFormPost()) {
+            requestBuilder.addFormParam(name, value);
         }
-
-        requestBuilder.addFormParam(name, value);
     }
 
     @Override
@@ -234,13 +242,26 @@ public class GatewayRequest implements IGatewayRequest {
         requestBuilder.setRequestTimeout(requestTimeout);
     }
 
+
     @Override
     public String getFinalURL() {
-        return this.modifyScheme.concat(this.modifyHost).concat(this.modifyPath);
+        return modifyScheme + modifyHost + modifyPath;
     }
 
     @Override
     public Request build() {
-        return requestBuilder.setUrl(getFinalURL()).build();
+        requestBuilder.setUrl(getFinalURL());
+        requestBuilder.addHeader("userId", String.valueOf(userId));
+        return requestBuilder.build();
+    }
+
+    public boolean isFormPost() {
+        return HttpMethod.POST.equals(method) &&
+                (contentType.startsWith(HttpHeaderValues.FORM_DATA.toString()) ||
+                        contentType.startsWith(HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED.toString()));
+    }
+
+    public boolean isJsonPost() {
+        return HttpMethod.POST.equals(method) && contentType.startsWith(HttpHeaderValues.APPLICATION_JSON.toString());
     }
 }

@@ -131,11 +131,17 @@ public class BaseContext implements IContext {
     }
 
     @Override
-    public void invokeCompleteCallback(Consumer<IContext> consumer) {
+    public void invokeCompletedCallBack(Consumer<IContext> consumer) {
         if (CollectionUtils.isEmpty(completedCallbackList)) {
             return;
         }
 
         completedCallbackList.forEach(completedCallback -> completedCallback.accept(this));
+    }
+
+    public void invokeCompletedCallBack() {
+        if(completedCallbackList != null){
+            completedCallbackList.forEach(call->call.accept(this));
+        }
     }
 }

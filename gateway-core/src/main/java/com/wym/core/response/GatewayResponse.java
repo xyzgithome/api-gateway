@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.wym.common.enums.ResponseCode;
 import com.wym.common.utils.JSONUtil;
 import io.netty.handler.codec.http.*;
+import lombok.Getter;
 import lombok.Setter;
 import org.asynchttpclient.Response;
 
@@ -12,6 +13,7 @@ import java.util.Map;
 import java.util.Objects;
 
 @Setter
+@Getter
 public class GatewayResponse {
     // 响应头
     private HttpHeaders responseHeaders = new DefaultHttpHeaders();

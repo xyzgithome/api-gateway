@@ -113,6 +113,6 @@ public interface IContext {
      *
      * @param consumer
      */
-    void invokeCompleteCallback(Consumer<IContext> consumer);
+    void invokeCompletedCallBack(Consumer<IContext> consumer);
 
 }
