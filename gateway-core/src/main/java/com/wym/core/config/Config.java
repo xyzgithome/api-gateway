@@ -1,6 +1,5 @@
 package com.wym.core.config;
 
-import com.lmax.disruptor.*;
 import lombok.Data;
 
 @Data
@@ -30,7 +29,7 @@ public class Config {
     //默认单异步模式
     private boolean whenComplete = true;
 
-    /*//	Http Async 参数选项：
+    //	Http Async 参数选项：
 
     //	连接超时时间
     private int httpConnectTimeout = 30 * 1000;
@@ -62,20 +61,20 @@ public class Config {
     //等待策略
     private String waitStrategy ="blocking";
 
-    public WaitStrategy getWaitStrategy(){
-        switch (waitStrategy){
-            case "blocking":
-                return  new BlockingWaitStrategy();
-            case "busySpin":
-                return  new BusySpinWaitStrategy();
-            case "yielding":
-                return  new YieldingWaitStrategy();
-            case "sleeping":
-                return  new SleepingWaitStrategy();
-            default:
-                return new BlockingWaitStrategy();
-        }
-    }*/
+//    public WaitStrategy getWaitStrategy(){
+//        switch (waitStrategy){
+//            case "blocking":
+//                return  new BlockingWaitStrategy();
+//            case "busySpin":
+//                return  new BusySpinWaitStrategy();
+//            case "yielding":
+//                return  new YieldingWaitStrategy();
+//            case "sleeping":
+//                return  new SleepingWaitStrategy();
+//            default:
+//                return new BlockingWaitStrategy();
+//        }
+//    }
 
     //扩展.......
 }
