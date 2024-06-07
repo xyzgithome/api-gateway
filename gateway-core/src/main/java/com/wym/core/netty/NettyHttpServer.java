@@ -16,6 +16,7 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.util.concurrent.DefaultThreadFactory;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.net.InetSocketAddress;
@@ -29,6 +30,7 @@ public class NettyHttpServer implements LifeCycle {
 
     private EventLoopGroup eventLoopBossGroup;
 
+    @Getter
     private EventLoopGroup eventLoopWorkerGroup;
 
     private final NettyProcessor nettyProcessor;
