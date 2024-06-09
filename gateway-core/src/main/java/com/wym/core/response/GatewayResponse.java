@@ -46,7 +46,7 @@ public class GatewayResponse {
     }
 
     // 构建失败JSON类型的响应信息
-    public static GatewayResponse buildGatewayResponse(ResponseCode code, Object...args){
+    public static GatewayResponse buildFailureGatewayResponse(ResponseCode code){
         GatewayResponse response = new GatewayResponse();
         response.setHttpResponseStatus(code.getStatus());
         response.putHeader(HttpHeaderNames.CONTENT_TYPE, HttpHeaderValues.APPLICATION_JSON.concat(";charset=utf-8"));
@@ -61,7 +61,7 @@ public class GatewayResponse {
     }
 
     // 构建成功响应对象
-    public static GatewayResponse buildGatewayResponse(Object data){
+    public static GatewayResponse buildSuccessGatewayResponse(Object data){
         GatewayResponse response = new GatewayResponse();
         response.setHttpResponseStatus(ResponseCode.SUCCESS.getStatus());
         response.putHeader(HttpHeaderNames.CONTENT_TYPE, HttpHeaderValues.APPLICATION_JSON.concat(";charset=utf-8"));

@@ -82,7 +82,7 @@ public class NettyCoreProcessor implements NettyProcessor {
 
         try {
             if (Objects.isNull(throwable)) {
-                gatewayContext.setResponse(GatewayResponse.buildGatewayResponse(response));
+                gatewayContext.setResponse(GatewayResponse.buildSuccessGatewayResponse(response));
                 return;
             }
 

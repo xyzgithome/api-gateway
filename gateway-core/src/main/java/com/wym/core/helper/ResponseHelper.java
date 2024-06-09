@@ -23,7 +23,7 @@ public class ResponseHelper {
 	 * @return
 	 */
 	public static FullHttpResponse getProcessFailHttpResponse(ResponseCode responseCode) {
-		GatewayResponse gatewayResponse = GatewayResponse.buildGatewayResponse(responseCode);
+		GatewayResponse gatewayResponse = GatewayResponse.buildFailureGatewayResponse(responseCode);
 		DefaultFullHttpResponse httpResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, 
 				responseCode.getStatus(),
 				Unpooled.wrappedBuffer(gatewayResponse.getContent().getBytes()));
@@ -49,7 +49,7 @@ public class ResponseHelper {
 				try {
 					JsonNode jsonNode = mapper.readTree(contentStrig);
 					//提起context里面的"data"对应的值
-					String dataValue = jsonNode.path("data").asText();
+					String dataValue = jsonNode.path("data").path("responseBody").asText();
 					content = Unpooled.copiedBuffer(dataValue,CharsetUtil.UTF_8);
 				}catch (Exception e){
 					throw new RuntimeException("Failed to pare JSON",e);
