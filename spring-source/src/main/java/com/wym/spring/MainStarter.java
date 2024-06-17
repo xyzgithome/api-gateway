@@ -11,11 +11,14 @@ public class MainStarter {
 
         // 从DefaultListableBeanFactory中获取bean
         UserService userService = context.getBean(UserService.class);
-        UserService userService1 = context.getBean(UserService.class);
+//        UserService userService1 = context.getBean(UserService.class);
 
-        System.out.println(userService);
-        System.out.println(userService1);
-        userService.test();
+//        System.out.println(userService);
+//        System.out.println(userService1);
+
+        context.close();
+
+
 
     }
 
